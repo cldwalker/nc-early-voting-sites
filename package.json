@@ -1,0 +1,17 @@
+{
+  "name": "nc-early-vote-sites",
+  "version": "1.0.0",
+  "description": "Find NC early voting sites by county, with hours and the closest site to an address",
+  "scripts": {
+    "build": "squint compile && mkdir -p dist && cp node_modules/leaflet/dist/leaflet.js dist/ && esbuild out/main.mjs --bundle --format=iife --target=es2019 --minify --outfile=dist/bundle.js && esbuild style.css --bundle --minify --external:*.png --outfile=dist/style.css",
+    "watch": "mkdir -p dist && cp node_modules/leaflet/dist/leaflet.js dist/ && squint watch & esbuild out/main.mjs --bundle --format=iife --target=es2019 --minify --outfile=dist/bundle.js --watch & esbuild style.css --bundle --minify --external:*.png --outfile=dist/style.css --watch"
+  },
+  "dependencies": {
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "squint-cljs": "^0.15.212"
+  },
+  "private": true
+}

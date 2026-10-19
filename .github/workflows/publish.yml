@@ -1,0 +1,40 @@
+name: Build and Deploy
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '*.md'
+permissions:
+  contents: write
+jobs:
+  build-and-deploy:
+    concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v6
+
+      # sites.json is committed since building it geocodes with network
+      # services. Run `bb sites` locally to pull the latest NCSBE list
+      - name: Install and Build 🔧
+        run: |
+          npm ci
+          npm run build
+          mkdir -p site/dist
+          cp index.html sites.json site/
+          cp dist/bundle.js dist/style.css dist/leaflet.js site/dist/
+
+      # Gives the CSS, JS and data new URLs on every deploy. Otherwise a cache like
+      # Cloudflare's can serve old copies alongside a new index.html. leaflet.js
+      # is versioned by Leaflet's version so browsers keep it across deploys
+      - name: Bust caches 🧹
+        run: |
+          v=${GITHUB_SHA::8}
+          lv=$(node -p "require('leaflet/package.json').version")
+          sed -i "s#href=\"dist/style.css\"#href=\"dist/style.css?v=$v\"#; s#src=\"dist/bundle.js\"#src=\"dist/bundle.js?v=$v\"#; s#href=\"sites.json\"#href=\"sites.json?v=$v\"#; s#src=\"dist/leaflet.js\"#src=\"dist/leaflet.js?v=$lv\"#" site/index.html
+          grep -q "style.css?v=$v" site/index.html && grep -q "bundle.js?v=$v" site/index.html && grep -q "sites.json?v=$v" site/index.html && grep -q "leaflet.js?v=$lv" site/index.html
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: site

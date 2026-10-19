@@ -1,0 +1,10 @@
+{:paths ["bb"]
+ :deps {org.babashka/http-server {:mvn/version "0.1.13"}}
+ :tasks
+ {sites {:exec-fn sites/build
+         :cli sites/sites-cli}
+  serve {:doc "Serve the site locally, e.g. bb serve --port 8080"
+         :requires ([babashka.http-server :as server])
+         :task (server/exec (merge {:port 8080 :dir "."}
+                                   (babashka.cli/parse-opts *command-line-args*
+                                                            {:coerce {:port :long}})))}}}
