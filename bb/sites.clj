@@ -271,7 +271,7 @@
 
 (defn build
   "Downloads the [NCSBE's statewide list](https://vt.ncsbe.gov/OSSite?handler=StatewideList)
-   into sites.json, geocoding new addresses.  It geocodes only new addresses
+   into sites.json and geocodes new addresses.  It geocodes only new addresses
    (the results are cached in `geocodes.json`). For any site it can't geocode,
    add `[lat, lng]` to `geocode-overrides.json` under the address it prints,
    then commit the result."
