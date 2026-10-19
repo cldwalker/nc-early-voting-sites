@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NC Early Voting Sites</title>
+  <meta name="description" content="Find North Carolina early voting (one-stop) sites by county, see today's hours and get the closest site to your address.">
+  <meta name="theme-color" content="#1e3a8a">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗳️</text></svg>">
+  <!-- Fetched in parallel with the JS, which reads its href -->
+  <link id="sites-data" rel="preload" href="sites.json?v=c5f74ba4" as="fetch" crossorigin="anonymous">
+  <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
+  <link rel="stylesheet" href="dist/style.css?v=c5f74ba4">
+  <!-- The map library loads on its own so the panel works before it arrives.
+       It rarely changes, so it stays cached across deploys -->
+  <script id="leaflet-js" src="dist/leaflet.js?v=1.9.4" async onerror="document.documentElement.classList.add('map-failed')"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <h1 class="brand"><span class="logo" aria-hidden="true">🗳️</span> NC Early Voting Sites</h1>
+      <p class="sub" id="updated">Find a one-stop early voting site in your county.</p>
+
+      <div class="combo" id="county-combo">
+        <label class="label" for="county-input">Your county</label>
+        <div class="field">
+          <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input id="county-input" type="text" role="combobox" aria-expanded="false" aria-controls="county-list" aria-autocomplete="list" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Type any part of a county name">
+          <button class="clear" id="county-clear" type="button" aria-label="Clear county" hidden>×</button>
+        </div>
+        <ul class="combo-list" id="county-list" role="listbox" aria-label="Counties" hidden></ul>
+      </div>
+    </header>
+
+    <main class="map-wrap" aria-label="Map of early voting sites">
+      <div id="map"></div>
+      <p class="map-status" aria-hidden="true"><span class="map-loading">Loading map…</span><span class="map-error">The map didn't load. The site list still works.</span></p>
+    </main>
+
+    <section class="body" id="body" aria-live="polite">
+      <div class="view intro" id="intro-view">
+        <p class="intro-lead">Pick your county to see its early voting sites, today's hours and the site closest to you.</p>
+        <ul class="tips">
+          <li><span aria-hidden="true">🏛️</span> <span>During early voting you can vote at <b>any</b> site in your county.</span></li>
+          <li><span aria-hidden="true">📝</span> <span>Not registered? You can register and vote at the same time during early voting.</span></li>
+          <li><span aria-hidden="true">🗺️</span> <span>You can also tap a dot on the map.</span></li>
+        </ul>
+      </div>
+
+      <div class="view list-view" id="list-view" hidden>
+        <div class="find">
+          <div class="combo">
+            <label class="label" for="address-input">Find the closest site to an address</label>
+            <div class="field">
+              <svg class="field-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              <input id="address-input" type="text" role="combobox" aria-expanded="false" aria-controls="address-list" aria-autocomplete="list" autocomplete="off" spellcheck="false" placeholder="Street address">
+              <button class="clear" id="address-clear" type="button" aria-label="Clear address" hidden>×</button>
+            </div>
+            <ul class="combo-list" id="address-list" role="listbox" aria-label="Matching addresses" hidden></ul>
+          </div>
+          <button class="link-btn locate" id="locate" type="button"><span aria-hidden="true">◎</span> Use my location</button>
+          <p class="status" id="address-status" role="status"></p>
+          <div class="closest" id="closest" hidden></div>
+        </div>
+        <h2 class="list-title" id="list-title"></h2>
+        <ol class="sites" id="site-list"></ol>
+      </div>
+
+      <article class="view detail-view" id="detail-view" hidden></article>
+
+      <p class="load-error" id="load-error" hidden>Sorry, the site list didn't load. Please refresh the page.</p>
+
+      <footer class="footer">
+        <p>Data from the <a href="https://vt.ncsbe.gov/EVSite/" target="_blank" rel="noopener">NC State Board of Elections</a>. Check with your county board of elections for any changes.</p>
+        <p><a href="https://vt.ncsbe.gov/RegLkup/" target="_blank" rel="noopener">Check your voter registration ↗</a></p>
+      </footer>
+    </section>
+  </div>
+  <script src="dist/bundle.js?v=c5f74ba4"></script>
+</body>
+</html>
