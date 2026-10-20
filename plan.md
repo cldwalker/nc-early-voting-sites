@@ -26,8 +26,10 @@ The webpage in this repo improves on the above site and has the following featur
 * Please use nice animations where possible as long as they don't increase .js or .css too much and doesn't make UX worse
 * The webpage should only consist of html, css, js and optional images. All js should be built with this compile-to-js language - https://github.com/squint-cljs/squint . Use npm for any js deps.
 * Use clojure* skills to help with writing squint. See ~/code/repo/durham-early-vote-race for a good example of using squint
-* All the data for county sites is available via ~/Downloads/StatewideList.txt. It's 700k so I'm unsure on how we load this data without providing a slow loading experience. I'm open to a pre-process task which splits the .txt into small files which load async as needed if that improves the loading experience. Please provide some options before working on full solution, with estimates on initial load time of webpage for each option
-* The resulting webpage will be published to github pages with same approach as ~/code/repo/durham-early-vote-race
+* All the data for county sites is available via https://vt.ncsbe.gov/OSSite?handler=StatewideList.
+* Supports Spanish translation. An EN/ES switch sits at the top right of the page. Nothing from Google loads until ES is picked, and then Google's website translator translates the page. While it's in Spanish the URL has `?lang=es`, which is kept across in-app navigation and removed when switching back to EN. Google's `googtrans` cookie brings Spanish back on a return visit, and `?lang=en` forces English.
+  * Site names, street addresses, address search results and map tooltips are `notranslate`, so addresses stay usable and names match signage. Standalone county names (the county picker) are `notranslate` too, since Google turns "Wake" into "Despertar". Inside sentences, "X County" is left translatable because Google renders it naturally as "condado de X", except Scotland and Transylvania, which it renders as Escocia and Transilvania.
+  * Text Google can't handle well is localized directly: the county picker's "N sites" counts (too short-lived for Google), the "Today" pill (CSS keyed off the `lang` Google sets on `<html>`) and the map credits ("Leaflet" would become "Folleto").
 
 ## Decisions
 

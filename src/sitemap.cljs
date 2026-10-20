@@ -54,6 +54,8 @@
   [sites on-site]
   (set! m (js/L.map "map" {:zoomSnap 0.25 :zoomControl false :attributionControl true}))
   (.addTo (js/L.control.zoom {:position "topright"}) m)
+  ;; Google Translate would turn "Leaflet" into "Folleto"
+  (.add (.-classList (.getContainer (.-attributionControl m))) "notranslate")
   ;; OSM's own tiles need no key. CSS darkens them in dark mode
   (.addTo (js/L.tileLayer "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
                           {:maxZoom 19
@@ -76,7 +78,7 @@
             (fn [site]
               (-> (js/L.circleMarker [(:lat site) (:lng site)]
                                      {:radius 4 :weight 1 :className "dot"})
-                  (.bindTooltip (str (:name site) " · " (:county site) " County"))
+                  (.bindTooltip (str (:name site) " · " (:county site) " County") {:className "notranslate"})
                   (.on "click" #(on-site site))
                   (.addTo state-layer))))
   m)
@@ -98,7 +100,7 @@
                     (let [pin (-> (js/L.marker [(:lat site) (:lng site)]
                                                {:icon (pin-icon (min i 20) (:boe site))
                                                 :title (:name site) :alt (:name site) :riseOnHover true})
-                                  (.bindTooltip (:name site) {:direction "top"})
+                                  (.bindTooltip (:name site) {:direction "top" :className "notranslate"})
                                   (.on "click" #(on-site site))
                                   (.addTo county-layer))]
                       (.set pins (:id site) pin))))
@@ -164,7 +166,7 @@
           line (or path [from to])
           bounds (js/L.latLngBounds (into [from to] line))]
       (-> (js/L.marker from {:icon (home-icon) :keyboard false :zIndexOffset 2000})
-          (.bindTooltip (or (:title origin) "Your address") {:direction "top"})
+          (.bindTooltip (or (:title origin) "Your address") {:direction "top" :className "notranslate"})
           (.addTo route-layer))
       ;; Draw once the map settles. The timer covers a move that never ends
       ;; because another one interrupted it

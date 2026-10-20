@@ -2,7 +2,8 @@
   (:require [combobox :as cb]
             [data :as d]
             [geo]
-            [sitemap :as sm]))
+            [sitemap :as sm]
+            [translate]))
 
 (defn- $ [id] (js/document.getElementById id))
 
@@ -57,6 +58,19 @@
   (let [info (d/today-info (:dates state) site)]
     #html [:span {:class (str "today " (:state info))} [:i.dot {:aria-hidden "true"}] (:text info)]))
 
+(def untranslatable-counties
+  "Counties whose names Google Translate turns into Spanish words even within
+  \"X County\" (Escocia, Transilvania). Others translate naturally as
+  \"condado de X\", so they're left translatable to keep that word order."
+  #{"Scotland" "Transylvania"})
+
+(defn- county-name
+  "A county's name inside a sentence that mentions its county."
+  [county]
+  (if (contains? untranslatable-counties county)
+    #html [:span.notranslate county]
+    #html [:<> county]))
+
 (defn- boe-tag [site]
   (if (:boe site) #html [:span.tag "Elections office"] ""))
 
@@ -82,9 +96,10 @@
 (defn- render-list! []
   (let [sites (sorted-sites)
         county (:county state)]
-    (set! (.-textContent ($ "list-title"))
-          (str (count sites) (if (= 1 (count sites)) " site" " sites") " in " county " County"
-               (if (:trips state) " · nearest first" "")))
+    (set! (.-innerHTML ($ "list-title"))
+          (str #html [:<> (count sites) (if (= 1 (count sites)) " site" " sites") " in "
+                      (county-name county) " County"
+                      (if (:trips state) " · nearest first" "")]))
     (set! (.-innerHTML ($ "site-list"))
           (.join (.map sites
                        (fn [site i]
@@ -92,9 +107,9 @@
                            (str #html [:li.site-item {:style (str "--i:" (min i 15))}
                                        [:a.site-link {:href (href county (:id site)) :data-nav "" :data-id (:id site)}
                                         [:span.site-top
-                                         [:span.site-name (:name site)]
+                                         [:span.site-name.notranslate (:name site)]
                                          (boe-tag site)]
-                                        [:span.site-street (:street site)]
+                                        [:span.site-street.notranslate (:street site)]
                                         (today-line site)
                                         (if trip
                                           #html [:span.trip (geo/fmt-trip trip)]
@@ -120,15 +135,15 @@
               (str #html [:<>
                           (if elsewhere
                             #html [:div.warn
-                                   [:p "This address looks like it's in " [:b elsewhere " County"]
+                                   [:p "This address looks like it's in " [:b (county-name elsewhere) " County"]
                                     ". You can only vote early at a site in the county where you're registered."]
                                    [:button.link-btn {:type "button" :id "switch-county"}
-                                    "Show " elsewhere " County sites instead"]]
+                                    "Switch to the sites in " (county-name elsewhere) " County"]]
                             "")
                           [:span.closest-label "Closest site"]
                           [:a.closest-site {:href (href (:county state) (:id site)) :data-nav ""}
-                           [:span.closest-name (:name site)]
-                           [:span.closest-street (:street site)]]
+                           [:span.closest-name.notranslate (:name site)]
+                           [:span.closest-street.notranslate (:street site)]]
                           [:span.closest-trip (geo/fmt-trip trip)
                            (if (:driving trip)
                              ""
@@ -155,7 +170,9 @@
                        #html [:tr {:class (str (if (= date today) "is-today" "")
                                                (if (d/parse-hours hours) "" " is-closed"))}
                               [:th {:scope "row"} (d/fmt-date date)
-                               (if (= date today) #html [:span.today-tag "Today"] "")]
+                               ;; CSS supplies the text: Google would join it to the
+                               ;; date as "20 de octubre. Hoy"
+                               (if (= date today) #html [:span.today-tag.notranslate {:aria-label "Today"}] "")]
                               [:td (d/fmt-hours hours)]]))]]])))
 
 (defn- render-detail! [site]
@@ -165,17 +182,17 @@
     (set! (.-innerHTML ($ "detail-view"))
           (str #html [:<>
                       [:a.back {:href (href county nil) :data-nav ""}
-                       [:span {:aria-hidden "true"} "‹ "] "All " county " County sites"]
-                      [:h2.detail-name {:id "detail-name" :tabindex "-1"} (:name site)]
+                       [:span {:aria-hidden "true"} "‹ "] "All " (county-name county) " County sites"]
+                      [:h2.detail-name.notranslate {:id "detail-name" :tabindex "-1"} (:name site)]
                       (boe-tag site)
                       [:a.address {:href (d/maps-url site) :target "_blank" :rel "noopener"}
                        [:span.addr-icon {:aria-hidden "true"} "📍"]
-                       [:span [:span.addr-line (:street site)] [:span.addr-line (:city site)]]
+                       [:span.notranslate [:span.addr-line (:street site)] [:span.addr-line (:city site)]]
                        [:span.ext {:aria-hidden "true"} "↗"]]
                       [:p.detail-today (today-line site)]
                       (if (and origin trip)
                         #html [:p.detail-trip [:span {:aria-hidden "true"} "🚗 "]
-                               (geo/fmt-trip trip) " from " [:b (:title origin)]]
+                               (geo/fmt-trip trip) " from " [:b.notranslate (:title origin)]]
                         "")
                       [:div.actions
                        [:a.btn.primary {:href (d/directions-url site origin) :target "_blank" :rel "noopener"}
@@ -323,8 +340,13 @@
                            (.filter matches #(not (.startsWith (.toLowerCase %) q))))))
       :render (fn [county q]
                 (let [n (count (get (:by-county state) county))]
-                  #html [:<> [:span.opt-main (cb/highlight county q)]
-                         [:span.opt-sub n (if (= 1 n) " site" " sites")]]))
+                  #html [:<> [:span.opt-main.notranslate (cb/highlight county q)]
+                         ;; Google doesn't get to these short-lived options in
+                         ;; time, so they're translated here
+                         [:span.opt-sub.notranslate n
+                          (if (translate/spanish?)
+                            (if (= 1 n) " sitio" " sitios")
+                            (if (= 1 n) " site" " sites"))]]))
       :on-select (fn [county]
                    (.blur input)
                    (navigate! county nil))})
@@ -360,8 +382,8 @@
       :empty #html [:<> "No matching NC address. Try adding a street number or city."]
       :source #(geo/search-places % (county-center))
       :render (fn [place q]
-                #html [:<> [:span.opt-main (cb/highlight (:title place) q)]
-                       [:span.opt-sub (or (:subtitle place) "")]])
+                #html [:<> [:span.opt-main.notranslate (cb/highlight (:title place) q)]
+                       [:span.opt-sub.notranslate (or (:subtitle place) "")]])
       :on-select choose-place!})
     (.addEventListener input "input" #(set! (.-hidden ($ "address-clear")) (empty? (.-value input))))
     (.addEventListener ($ "address-clear") "click"
@@ -465,6 +487,9 @@
     (apply-url!)
     (.add (.-classList js/document.body) "ready")
     (sm/when-leaflet init-map!)))
+
+;; Before the data loads, so a ?lang=es link starts translating right away
+(translate/init ($ "lang") ($ "lang-note"))
 
 (-> (js/fetch (.-href ($ "sites-data")))
     (.then #(.json %))

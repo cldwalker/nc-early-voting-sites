@@ -2,6 +2,12 @@
 
 A fast, mobile-friendly way to find North Carolina early voting sites, as an alternative to https://vt.ncsbe.gov/EVSite/. It improves over the state site by making any county and site information linkable and easy to share. It also provides functionality to find the closes site to an address.
 
+## Sharing with Others
+
+* https://tagaholic.me/nc-early-voting-sites/?lang=es - Shows webpage in Spanish by default.
+* https://tagaholic.me/nc-early-voting-sites/?county=durham - `county` param shows sites for a county e.g. durham. Webpage sets the correct url when in county view.
+* https://tagaholic.me/nc-early-voting-sites/?county=durham&site=221-milton-rd - `site` params shows early voting site details. Webpage sets the correct url when in site view.
+
 ## Development
 
 Requires [babashka](https://github.com/babashka/babashka) and Node.

@@ -118,6 +118,71 @@ a { color: var(--accent); }
   .top, .body { border-right: 0; }
 }
 
+/* EN/ES switch. Top right of the page: over the map on desktop, in the
+   header on phones */
+
+.lang-bar {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lang-note {
+  font-size: .8rem; font-weight: 600; color: var(--muted);
+  background: var(--panel); border-radius: 999px;
+}
+.lang-note:not(:empty) { padding: 4px 10px; box-shadow: var(--shadow); }
+.lang {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font: inherit;
+  font-size: .8rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.lang::before {
+  content: "";
+  position: absolute;
+  top: 3px; bottom: 3px; left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 999px;
+  background: var(--accent);
+  transition: transform .25s cubic-bezier(.3, 1.4, .5, 1);
+}
+.lang[aria-checked="true"]::before { transform: translateX(100%); }
+.lang span { position: relative; padding: 4px 10px; color: var(--muted); transition: color .25s; }
+.lang[aria-checked="false"] span:first-child,
+.lang[aria-checked="true"] span:last-child { color: var(--panel); }
+.lang.busy::before { animation: lang-busy .9s ease-in-out infinite alternate; }
+@keyframes lang-busy { to { opacity: .45; } }
+.lang:hover { border-color: var(--accent); }
+/* Leaves room for the switch above Leaflet's zoom buttons */
+.leaflet-top.leaflet-right { top: 46px; }
+
+@media (max-width: 799px) {
+  .lang-bar { position: absolute; top: 16px; right: 16px; }
+  .brand { padding-right: 92px; }
+  .leaflet-top.leaflet-right { top: 0; }
+}
+
+/* Hide Google Translate's banner, tooltips, hover highlights and floating
+   progress spinner. The spinner only has an obfuscated class that Google
+   could rename */
+iframe.skiptranslate, #goog-gt-tt, .goog-te-balloon-frame,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf { display: none !important; }
+body { top: 0 !important; }
+.goog-text-highlight { background: none !important; box-shadow: none !important; }
+
 /* Header */
 
 .brand {
@@ -421,6 +486,9 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1
 .hours .is-closed td { color: var(--closed); }
 .hours .is-today { background: var(--accent-soft); font-weight: 650; }
 .hours .is-today th, .hours .is-today td { padding-left: 10px; padding-right: 10px; }
+.today-tag::after { content: "Today"; }
+/* Google Translate sets the page's lang while it's in Spanish */
+html[lang|="es"] .today-tag::after { content: "Hoy"; }
 .today-tag {
   margin-left: 8px; padding: 1px 7px; border-radius: 999px;
   background: var(--accent); color: var(--panel);
