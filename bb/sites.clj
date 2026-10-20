@@ -18,7 +18,7 @@
 (def census-batch-url
   "https://geocoding.geo.census.gov/geocoder/locations/addressbatch")
 (def nominatim-url "https://nominatim.openstreetmap.org/search")
-(def user-agent "nc-early-vote-sites/1.0 (https://github.com/cldwalker/nc-early-vote-sites)")
+(def user-agent "nc-early-vote-sites/1.0 (https://github.com/cldwalker/nc-early-voting-sites)")
 
 ;; ---------------------------------------------------------------------------
 ;; Parsing

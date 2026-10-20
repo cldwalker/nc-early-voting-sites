@@ -417,7 +417,7 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1
 .hours th, .hours td { padding: 7px 4px; border-bottom: 1px solid var(--line); text-align: left; }
 .hours th { font-weight: 500; }
 .hours td { text-align: right; }
-.hours .is-past { color: var(--closed); }
+.hours-over { padding: 12px 14px; border-radius: var(--radius); background: var(--bg); }
 .hours .is-closed td { color: var(--closed); }
 .hours .is-today { background: var(--accent-soft); font-weight: 650; }
 .hours .is-today th, .hours .is-today td { padding-left: 10px; padding-right: 10px; }
@@ -431,6 +431,23 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1
 
 .footer { margin-top: 28px; color: var(--muted); font-size: .8rem; }
 .footer p { margin: 4px 0; }
+.credits {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  margin-top: 20px; padding-top: 18px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+.credits a { color: var(--text); font-weight: 600; }
+.source-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  text-decoration: none;
+  transition: border-color .15s, transform .15s var(--ease);
+}
+.source-link:hover { border-color: var(--text); transform: translateY(-2px); }
 
 /* Map */
 

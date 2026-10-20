@@ -8,6 +8,8 @@
 
 (def state
   {:dates []
+   ;; ISO date of Election Day
+   :election nil
    :sites []
    ;; county name → its sites, sorted by name
    :by-county {}
@@ -132,22 +134,29 @@
                              ""
                              #html [:small " (straight line; driving times are unavailable right now)"])]]))))))
 
-(defn- hours-table [site]
-  (let [today (d/today-iso)]
-    #html [:table.hours
-           [:caption.sr-only "Early voting hours"]
-           [:tbody
-            (.map (:dates state)
-                  (fn [date i]
-                    (let [h (aget (:hours site) i)
-                          closed? (nil? (d/parse-hours h))]
-                      #html [:tr {:class (str (cond (= date today) "is-today"
-                                                    (< date today) "is-past"
-                                                    :else "")
-                                              (if closed? " is-closed" ""))}
-                             [:th {:scope "row"} (d/fmt-date date)
-                              (if (= date today) #html [:span.today-tag "Today"] "")]
-                             [:td (d/fmt-hours h)]])))]]))
+(defn- hours-section
+  "Hours for today and the days left. Past days aren't useful to a voter."
+  [site]
+  (let [today (d/today-iso)
+        dates (:dates state)
+        days (.filter (.map dates (fn [date i] {:date date :hours (aget (:hours site) i)}))
+                      #(>= (:date %) today))]
+    (if (empty? days)
+      #html [:p.hours-over "Early voting ended " (d/fmt-date (last dates))
+             ". On Election Day, " (d/fmt-date (:election state))
+             ", vote at your assigned precinct."]
+      #html [:<>
+             [:h3.hours-title (if (> today (first dates)) "Remaining early voting hours" "Early voting hours")]
+             [:table.hours
+              [:caption.sr-only "Early voting hours"]
+              [:tbody
+               (.map days
+                     (fn [{:keys [date hours]}]
+                       #html [:tr {:class (str (if (= date today) "is-today" "")
+                                               (if (d/parse-hours hours) "" " is-closed"))}
+                              [:th {:scope "row"} (d/fmt-date date)
+                               (if (= date today) #html [:span.today-tag "Today"] "")]
+                              [:td (d/fmt-hours hours)]]))]]])))
 
 (defn- render-detail! [site]
   (let [origin (:origin state)
@@ -172,8 +181,7 @@
                        [:a.btn.primary {:href (d/directions-url site origin) :target "_blank" :rel "noopener"}
                         "Directions"]
                        [:button.btn {:type "button" :id "share"} "Share"]]
-                      [:h3.hours-title "Early voting hours"]
-                      (hours-table site)]))))
+                      (hours-section site)]))))
 
 ;; ---------------------------------------------------------------------------
 ;; Views
@@ -444,6 +452,7 @@
     (.forEach (js/Object.values by-county) #(.sort % (fn [a b] (.localeCompare (:name a) (:name b)))))
     (assoc! state
             :dates (:dates data)
+            :election (:election data)
             :sites sites
             :by-county by-county
             :counties (.sort (js/Object.keys by-county)))

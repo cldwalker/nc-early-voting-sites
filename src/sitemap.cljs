@@ -15,6 +15,8 @@
 ;; site id → county pin marker
 (def pins (js/Map.))
 (def selected-id nil)
+;; True while showing the whole state, so a resize refits it
+(def state-view? true)
 ;; True during a pan or flight, when the map's bounds aren't where it's headed
 (def moving? false)
 
@@ -57,7 +59,13 @@
                           {:maxZoom 19
                            :attribution "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors"})
           m)
-  (.fitBounds m nc-bounds)
+  (.fitBounds m nc-bounds {:padding (pad)})
+  ;; Leaflet keeps its zoom when the map's box changes size, e.g. while a phone
+  ;; settles its layout, which can leave the state view zoomed into its middle
+  (.observe (js/ResizeObserver. (fn []
+                                  (.invalidateSize m {:pan false})
+                                  (when state-view? (.fitBounds m nc-bounds {:padding (pad)}))))
+            (.getContainer m))
   (.on m "movestart" #(set! moving? true))
   (.on m "moveend" #(set! moving? false))
   (.add (.-classList js/document.documentElement) "map-ready")
@@ -82,6 +90,7 @@
     (.clear pins)
     (set! selected-id nil)
     (.toggle (.-classList (.getContainer m)) "has-county" (some? sites))
+    (set! state-view? (empty? sites))
     (if (seq sites)
       (do
         (.forEach sites
