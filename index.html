@@ -6,11 +6,12 @@
   <title>NC Early Voting Sites</title>
   <meta name="description" content="Find North Carolina early voting (one-stop) sites by county, see today's hours and get the closest site to your address.">
   <meta name="theme-color" content="#1e3a8a">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗳️</text></svg>">
+  <!-- North Carolina in white across a navy and red split: the state flag's colors -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3CclipPath id='r'%3E%3Crect width='64' height='64' rx='14'/%3E%3C/clipPath%3E%3Cg clip-path='url(%23r)'%3E%3Crect width='64' height='64' fill='%23bf0a30'/%3E%3Crect width='64' height='32' fill='%23002868'/%3E%3C/g%3E%3Cpath fill='%23fff' stroke='%23002868' stroke-width='2.5' paint-order='stroke' stroke-linejoin='round' transform='translate(4 21.9) scale(0.875)' d='M2.0 13.1 L10.3 13.3 L15.1 11.5 L24.4 12.1 L24.4 12.9 L25.1 12.4 L26.1 13.9 L26.0 14.8 L33.7 15.0 L41.4 23.0 L43.5 22.4 L45.4 23.0 L46.3 20.3 L48.2 18.2 L52.0 16.1 L54.2 15.9 L55.1 16.8 L58.6 12.9 L55.2 16.2 L54.2 15.8 L54.7 15.1 L55.2 16.0 L56.8 13.3 L56.1 13.5 L55.6 12.7 L53.6 14.0 L52.1 13.3 L53.3 13.6 L55.6 11.1 L51.8 9.0 L54.8 10.1 L54.5 9.0 L55.6 8.6 L54.8 9.1 L55.5 10.2 L57.8 10.6 L60.6 8.1 L60.6 6.4 L59.8 5.1 L59.2 5.3 L58.6 7.9 L58.4 5.0 L54.1 5.4 L54.1 2.6 L53.9 3.7 L54.8 4.9 L56.7 4.2 L55.8 3.3 L57.3 4.1 L56.9 3.3 L58.4 3.7 L57.5 2.4 L59.5 3.6 L59.3 2.9 L60.2 4.3 L58.9 0.5 L62.0 6.7 L59.7 0.3 L20.0 0.0 L19.8 2.1 L18.5 2.4 L17.6 3.9 L15.4 4.0 L14.0 5.3 L13.5 4.4 L11.7 5.4 L11.1 6.8 L7.6 8.6 L5.0 9.0 L3.8 11.1 L2.2 11.4 L2.0 13.1Z'/%3E%3C/svg%3E">
   <!-- Fetched in parallel with the JS, which reads its href -->
-  <link id="sites-data" rel="preload" href="sites.json?v=837756d1" as="fetch" crossorigin="anonymous">
+  <link id="sites-data" rel="preload" href="sites.json?v=2e291ba5" as="fetch" crossorigin="anonymous">
   <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
-  <link rel="stylesheet" href="dist/style.css?v=837756d1">
+  <link rel="stylesheet" href="dist/style.css?v=2e291ba5">
   <!-- The map library loads on its own so the panel works before it arrives.
        It rarely changes, so it stays cached across deploys -->
   <script id="leaflet-js" src="dist/leaflet.js?v=1.9.4" async onerror="document.documentElement.classList.add('map-failed')"></script>
@@ -24,7 +25,18 @@
           <span>EN</span><span>ES</span>
         </button>
       </div>
-      <h1 class="brand"><span class="logo" aria-hidden="true">🗳️</span> NC Early Voting Sites</h1>
+      <h1 class="brand">
+        <!-- North Carolina's flag, simplified: the gold N C letters and date
+             scrolls are unreadable at this size -->
+        <svg class="flag" viewBox="0 0 30 20" aria-hidden="true">
+          <rect width="30" height="20" fill="#bf0a30"/>
+          <rect y="10" width="30" height="10" fill="#fff"/>
+          <rect width="10" height="20" fill="#002868"/>
+          <path fill="#fff" d="M5.00 6.60 L5.76 8.95 L8.23 8.95 L6.24 10.40 L7.00 12.75 L5.00 11.30 L3.00 12.75 L3.76 10.40 L1.77 8.95 L4.24 8.95Z"/>
+          <rect x=".5" y=".5" width="29" height="19" rx="1.5" fill="none" stroke="rgb(0 0 0 / 15%)"/>
+        </svg>
+        NC Early Voting Sites
+      </h1>
       <p class="sub" id="updated">Find a one-stop early voting site in your county.</p>
 
       <div class="combo" id="county-combo">
@@ -68,6 +80,9 @@
           <p class="status" id="address-status" role="status"></p>
           <div class="closest" id="closest" hidden></div>
         </div>
+        <a class="wait-link" id="wait-link" target="_blank" rel="noopener" hidden>
+          <span class="live" aria-hidden="true"></span> Site Waiting Times <span class="ext" aria-hidden="true">↗</span>
+        </a>
         <h2 class="list-title" id="list-title"></h2>
         <ol class="sites" id="site-list"></ol>
       </div>
@@ -77,7 +92,7 @@
       <p class="load-error" id="load-error" hidden>Sorry, the site list didn't load. Please refresh the page.</p>
 
       <footer class="footer">
-        <p>Data from the <a href="https://vt.ncsbe.gov/EVSite/" target="_blank" rel="noopener">NC State Board of Elections</a>. Check with your county board of elections for any changes.</p>
+        <p>Data from the <a href="https://vt.ncsbe.gov/EVSite/" target="_blank" rel="noopener">NC State Board of Elections ↗</a>. Check with your county board of elections for any changes.</p>
         <p><a href="https://vt.ncsbe.gov/RegLkup/" target="_blank" rel="noopener">Check your voter registration ↗</a></p>
         <div class="credits">
           <p>Artisanly slopped by <a href="https://bsky.app/profile/cldwalker.bsky.social" target="_blank" rel="noopener">@cldwalker</a> 🦋</p>
@@ -87,6 +102,6 @@
     </section>
   </div>
   <div id="google-translate" hidden></div>
-  <script src="dist/bundle.js?v=837756d1"></script>
+  <script src="dist/bundle.js?v=2e291ba5"></script>
 </body>
 </html>
