@@ -110,3 +110,10 @@
   (str "https://www.google.com/maps/dir/?api=1"
        (if origin (str "&origin=" (:lat origin) "," (:lng origin)) "")
        "&destination=" (js/encodeURIComponent (full-address site))))
+
+(def wait-times
+  "Counties with a page of live early voting wait times, by county name."
+  {"Buncombe" "https://bunco.maps.arcgis.com/apps/webappviewer/index.html?id=ae284ef93d1a40a592477a29c8929c81"
+   "Durham" "https://durhamnc.maps.arcgis.com/apps/instant/nearby/index.html?appid=1d42511f6e2e45dfbd5b21d233899a64"
+   "Orange" "https://www.orangecountync.gov/3013/Early-Voting-Wait-Time-Tracker"
+   "Wake" "https://airtable.com/appAL6KsUEvshj4br/shrQkIIFla4bjdGzh/tbl0siEKfqhV1y6F8"})

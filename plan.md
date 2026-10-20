@@ -30,6 +30,7 @@ The webpage in this repo improves on the above site and has the following featur
 * Supports Spanish translation. An EN/ES switch sits at the top right of the page. Nothing from Google loads until ES is picked, and then Google's website translator translates the page. While it's in Spanish the URL has `?lang=es`, which is kept across in-app navigation and removed when switching back to EN. Google's `googtrans` cookie brings Spanish back on a return visit, and `?lang=en` forces English.
   * Site names, street addresses, address search results and map tooltips are `notranslate`, so addresses stay usable and names match signage. Standalone county names (the county picker) are `notranslate` too, since Google turns "Wake" into "Despertar". Inside sentences, "X County" is left translatable because Google renders it naturally as "condado de X", except Scotland and Transylvania, which it renders as Escocia and Transilvania.
   * Text Google can't handle well is localized directly: the county picker's "N sites" counts (too short-lived for Google), the "Today" pill (CSS keyed off the `lang` Google sets on `<html>`) and the map credits ("Leaflet" would become "Folleto").
+* Counties with a live early voting wait-time page e.g. Buncombe, Durham, Orange, Wake show a "Site Waiting Times" link.
 
 ## Decisions
 

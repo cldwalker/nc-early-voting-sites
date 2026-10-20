@@ -14,6 +14,7 @@
   --later: #b45309;
   --closed: #8a93a3;
   --mark: #fde68a;
+  --live: #dc2626;
   --warn-bg: #fff7e6;
   --warn-line: #f5c26b;
   --shadow: 0 1px 2px rgb(16 24 40 / 6%), 0 8px 24px rgb(16 24 40 / 8%);
@@ -37,6 +38,7 @@
     --later: #fbbf24;
     --closed: #6b7280;
     --mark: #6b5310;
+    --live: #f87171;
     --warn-bg: #2b2210;
     --warn-line: #7a5a17;
     --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 8px 24px rgb(0 0 0 / 35%);
@@ -193,7 +195,11 @@ body { top: 0 !important; }
   align-items: center;
   gap: 8px;
 }
-.logo { font-size: 1.4rem; }
+.flag {
+  width: 30px; height: 20px; flex: none;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 18%);
+}
 .sub { margin: 4px 0 14px; color: var(--muted); font-size: .9rem; }
 
 .label {
@@ -352,6 +358,40 @@ mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 1
   font-size: .9rem;
 }
 .warn p { margin: 0 0 6px; }
+
+/* Live wait times link */
+
+.wait-link {
+  display: flex; align-items: center; gap: 10px;
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color .15s, transform .15s var(--ease);
+}
+.wait-link[hidden] { display: none; }
+.wait-link:hover { border-color: var(--accent); }
+.wait-link:active { transform: scale(.99); }
+.wait-link .ext { margin-left: auto; color: var(--accent); }
+/* A broadcast-style "live" dot with a ring pulsing out of it */
+.live {
+  position: relative;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--live);
+  flex: none;
+}
+.live::after {
+  content: ""; position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--live);
+  animation: live-ring 1.6s ease-out infinite;
+}
+@keyframes live-ring { to { transform: scale(2.6); opacity: 0; } }
 
 /* Site list */
 

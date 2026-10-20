@@ -95,7 +95,13 @@
 
 (defn- render-list! []
   (let [sites (sorted-sites)
-        county (:county state)]
+        county (:county state)
+        wait-link ($ "wait-link")
+        wait-url (get d/wait-times county)]
+    (set! (.-hidden wait-link) (nil? wait-url))
+    (if wait-url
+      (set! (.-href wait-link) wait-url)
+      (.removeAttribute wait-link "href"))
     (set! (.-innerHTML ($ "list-title"))
           (str #html [:<> (count sites) (if (= 1 (count sites)) " site" " sites") " in "
                       (county-name county) " County"

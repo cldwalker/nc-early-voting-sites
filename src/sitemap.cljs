@@ -54,8 +54,10 @@
   [sites on-site]
   (set! m (js/L.map "map" {:zoomSnap 0.25 :zoomControl false :attributionControl true}))
   (.addTo (js/L.control.zoom {:position "topright"}) m)
-  ;; Google Translate would turn "Leaflet" into "Folleto"
+  ;; Google Translate would mangle the credits
   (.add (.-classList (.getContainer (.-attributionControl m))) "notranslate")
+  ;; Drops the "Leaflet" link, which its license doesn't require. OSM's credit stays
+  (.setPrefix (.-attributionControl m) false)
   ;; OSM's own tiles need no key. CSS darkens them in dark mode
   (.addTo (js/L.tileLayer "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
                           {:maxZoom 19
